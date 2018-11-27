@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   mysql:
-    container_name: goec-mysql
+    container_name: hoge-mysql
     image: mysql:8.0
     ports:
     - "3313:3306"
@@ -11,6 +11,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: goecdb
+      MYSQL_DATABASE: sakila
     volumes:
     - ./.data/mysql:/var/lib/mysql
+    - ./sakila-db:/docker-entrypoint-initdb.d
