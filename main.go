@@ -10,6 +10,13 @@ import (
 )
 
 func main() {
+
+	unmasks := []string{
+		fmt.Sprintf("%s.%s", "staff", "first_name"),
+		fmt.Sprintf("%s.%s", "film_text", "description"),
+		fmt.Sprintf("%s.%s", "actor", "last_name"),
+	}
+
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3313)/sakila")
 	if err != nil {
 		log.Panic(err)
@@ -47,9 +54,26 @@ func main() {
 				log.Println(err)
 				continue
 			}
+
+			// skip masking check
+			s := fmt.Sprintf("%s.%s", table, columnName)
+			skipMasking := func() bool {
+				for _, v := range unmasks {
+					if s == v {
+						return true
+					}
+				}
+				return false
+			}()
+			if skipMasking {
+				log.Println("skip masking", s)
+				continue
+			}
+
 			if strings.Contains(dataType, "char") || strings.Contains(dataType, "text") {
 				// update string field with the value masked
-				_, _ = db.Exec(fmt.Sprintf("UPDATE %s SET %s = CONCAT(LEFT(%s, 1), '*****')", table, columnName, columnName))
+				// TODO: fieldがnameを含んでたら a*******, phoneを含んでたら *****abc***** みたいなことできるようにする
+				_, _ = db.Exec(fmt.Sprintf("UPDATE %s SET %s = CONCAT(LEFT(%s, 1), '*******')", table, columnName, columnName))
 			}
 		}
 	}
