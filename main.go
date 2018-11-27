@@ -47,7 +47,5 @@ func main() {
 				_, _ = db.Exec(fmt.Sprintf("UPDATE %s SET %s = CONCAT(LEFT(%s, 1), '*****')", table, columnName, columnName))
 			}
 		}
-
-		//break
 	}
 }
