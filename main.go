@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -11,35 +12,39 @@ import (
 func main() {
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3313)/sakila")
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
-	// list all tables
-	res, _ := db.Query("SHOW TABLES")
+	res, err := db.Query("SHOW TABLES")
+	if err != nil {
+		log.Panic(err)
+	}
+
 	var table string
 	for res.Next() {
-		res.Scan(&table)
-		fmt.Println(table)
+		if err = res.Scan(&table); err != nil {
+			log.Println(err)
+			continue
+		}
 
-		// each table
 		rows, err := db.Query(
 			"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?",
 			"sakila", table)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
 		var columnName, dataType string
 		for rows.Next() {
 			if err = rows.Scan(&columnName, &dataType); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				continue
 			}
 			if strings.Contains(dataType, "char") || strings.Contains(dataType, "text") {
