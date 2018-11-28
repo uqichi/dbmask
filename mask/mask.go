@@ -11,7 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Mask(ctx context.Context, db *sql.DB, unmasks []string) error {
+func Mask(ctx context.Context, db *sql.DB, nomasks []string) error {
 
 	dbNames, err := db.Query("SELECT DATABASE()")
 	if err != nil {
@@ -58,7 +58,7 @@ func Mask(ctx context.Context, db *sql.DB, unmasks []string) error {
 			// skip masking check
 			skipper := fmt.Sprintf("%s.%s", tableName, columnName)
 			skipMasking := func() bool {
-				for _, v := range unmasks {
+				for _, v := range nomasks {
 					if skipper == v {
 						return true
 					}
